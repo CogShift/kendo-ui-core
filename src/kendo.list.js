@@ -1,14 +1,22 @@
+/**
+ * Copyright 2015 Telerik AD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 (function(f, define){
     define([ "./kendo.data", "./kendo.popup" ], f);
 })(function(){
-
-var __meta__ = {
-    id: "list",
-    name: "List",
-    category: "framework",
-    depends: [ "data", "popup" ],
-    hidden: true
-};
 
 /*jshint evil: true*/
 (function($, undefined) {
@@ -1230,7 +1238,10 @@ var __meta__ = {
             selectable: true,
             template: null,
             groupTemplate: null,
-            fixedGroupTemplate: null
+            fixedGroupTemplate: null,
+            allowCreate: true,
+            createTemplate: null,
+            createCallback: null
         },
 
         events: [
@@ -1242,6 +1253,16 @@ var __meta__ = {
            "dataBound",
            "selectedItemChange"
         ],
+
+        setCreateText: function (text) {
+        	var that = this;
+
+        	that._createText = text;
+
+        	if (!text) {
+        		this.element.find(".k-item-create").remove();
+        	}
+        },
 
         setDataSource: function(source) {
             var that = this;
@@ -1501,6 +1522,36 @@ var __meta__ = {
             }
 
             if (that.isBound()) {
+
+            	// Ensure that all _dataItems exist as items in the _view.  
+            	var ix = that._view.length;
+	            var html = "";
+	            for (var i = 0; i < that._dataItems.length; i++) {
+	            	var dataItem = that._dataItems[i],
+						found = false;
+
+	            	for (var j = 0; j < that._view.length; j++) {
+	            		var viewItem = that._view[j];
+
+						if (that._valueGetter(dataItem) === that._valueGetter(viewItem.item)) {
+							found = true;
+							break;
+						}
+		            }
+
+	            	if (!found) {
+	            		var context = {
+	            			item: dataItem,
+	            			index: ix++,
+	            			selected: true
+	            		};
+
+	            		html += that._renderItem(context);
+	            		that._view.push(context);
+		            }
+	            }
+	            that.element.append(html);
+
                 indices = that._valueIndices(that._values);
 
                 if (that.options.selectable === "multiple") {
@@ -1746,18 +1797,28 @@ var __meta__ = {
         },
 
         _templates: function() {
-            var template;
-            var templates = {
-                template: this.options.template,
-                groupTemplate: this.options.groupTemplate,
-                fixedGroupTemplate: this.options.fixedGroupTemplate
-            };
+        	var that = this, 
+				template,
+				options = this.options,
+				templates = {
+					template: this.options.template,
+					groupTemplate: this.options.groupTemplate,
+					fixedGroupTemplate: this.options.fixedGroupTemplate
+				};
 
             for (var key in templates) {
                 template = templates[key];
                 if (template && typeof template !== "function") {
                     templates[key] = kendo.template(template);
                 }
+            }
+
+			var createTemplate = kendo.template(options.createTemplate || "Just Use \"${text}\"");
+
+            templates.createTemplate = function (data) {
+            	var view = that.dataSource.view();
+
+            	return '<li tabindex="-1" role="option" unselectable="on" class="k-item k-item-create" data-offset-index="' + view.length + '">' + createTemplate(data) + "</li>";
             }
 
             this.templates = templates;
@@ -1881,6 +1942,7 @@ var __meta__ = {
             var i = 0;
             var idx = 0;
             var context;
+	        var options = this.options;
             var dataContext = [];
             var view = this.dataSource.view();
             var values = this.value();
@@ -1915,6 +1977,25 @@ var __meta__ = {
 
                     html += this._renderItem(context);
                 }
+            }
+
+        	// Add the "Just use" template to the end of the list if enabled
+            if (options.allowCreate) {
+            	if (this._createText) {
+            		var ix = dataContext.length,
+		                args = { text: this._createText },
+		                item = options.createCallback(args);
+
+            		dataContext.push({
+            			selected: false,
+            			item: item,
+            			index: ix
+            		});
+
+            		html += this.templates.createTemplate(args);
+            	} else {
+            		this.setCreateText(null);
+            	}
             }
 
             this._view = dataContext;

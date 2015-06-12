@@ -1,25 +1,22 @@
+/**
+ * Copyright 2015 Telerik AD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 (function(f, define){
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
-
-var __meta__ = {
-    id: "multiselect",
-    name: "MultiSelect",
-    category: "web",
-    description: "The MultiSelect widget allows the selection from pre-defined values.",
-    depends: [ "list" ],
-    features: [ {
-        id: "mobile-scroller",
-        name: "Mobile scroller",
-        description: "Support for kinetic scrolling in mobile device",
-        depends: [ "mobile.scroller" ]
-    }, {
-        id: "virtualization",
-        name: "VirtualList",
-        description: "Support for virtualization",
-        depends: [ "virtuallist" ]
-    } ]
-};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -163,7 +160,10 @@ var __meta__ = {
             itemTemplate: "",
             tagTemplate: "",
             groupTemplate: "#:data#",
-            fixedGroupTemplate: "#:data#"
+            fixedGroupTemplate: "#:data#",
+            allowCreate: true,
+            createCallback: null,
+            createTemplate: null
         },
 
         events: [
@@ -264,7 +264,8 @@ var __meta__ = {
         _initList: function() {
             var that = this;
             var virtual = that.options.virtual;
-            var hasVirtual = !!virtual;
+	        var hasVirtual = !!virtual,
+	            options = that.options;
 
             var listBoundHandler = proxy(that._listBound, that);
 
@@ -282,7 +283,10 @@ var __meta__ = {
                 },
                 dataBound: listBoundHandler,
                 listBound: listBoundHandler,
-                selectedItemChange: proxy(that._selectedItemChange, that)
+                selectedItemChange: proxy(that._selectedItemChange, that),
+                allowCreate: options.allowCreate,
+                createTemplate: options.createTemplate,
+                createCallback: $.proxy(that._create, that)
             };
 
             listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
@@ -506,7 +510,7 @@ var __meta__ = {
 
             if (that._open) {
                 that._open = false;
-                that.toggle(length);
+                that.toggle(!!that.listView.element.children().length);
             }
 
             that.popup.position();
@@ -556,7 +560,7 @@ var __meta__ = {
                     operator: filter,
                     ignoreCase: ignoreCase
                 };
-
+                that.listView.setCreateText(word);
                 that._filterSource(expression, that._retrieveData);
                 that._retrieveData = false;
             }
@@ -858,7 +862,8 @@ var __meta__ = {
             if (input[0] === active && !skipCaret) {
                 kendo.caret(input[0], 0, 0);
             }
-
+        	// Clear the "create" item from the listView when the placeholder text is being displayed.
+            that.listView.setCreateText(null);
             that._scale();
         },
 
@@ -997,9 +1002,27 @@ var __meta__ = {
             }, that.options.delay);
         },
 
-        _allowSelection: function() {
-            var max = this.options.maxSelectedItems;
-            return max === null || max > this.listView.value().length;
+        _allowSelection: function () {
+        	var max = this.options.maxSelectedItems;
+        	return (max === null || max > this.listView.value().length) && !!this.listView.element.children().length;
+        },
+
+        _create: function(e) {
+        	var that = this,
+			    options = that.options,
+			    dataItem;
+
+        	if (options.createCallback instanceof Function) {
+        		dataItem = options.createCallback({ sender: that, text: e.text });
+        	}
+
+        	if (!dataItem) {
+        		dataItem = { suggestion: true };
+        		dataItem[options.dataTextField || "text"] = e.text;
+        		dataItem[options.dataValueField || "value"] = e.text;
+        	}
+
+        	return dataItem;
         },
 
         _angularTagItems: function(cmd) {
