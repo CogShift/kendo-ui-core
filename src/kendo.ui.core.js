@@ -30,6 +30,7 @@
         "./kendo.dropdownlist",
         "./kendo.combobox",
         "./kendo.multiselect",
+		"./kendo.singleselect",
         "./kendo.colorpicker",
         "./kendo.listview",
         "./kendo.numerictextbox",

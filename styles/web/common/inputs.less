@@ -513,6 +513,26 @@ body .k-datetimepicker .k-select
     padding: .1em .2em;
 }
 
+.k-multiselect.k-singleselect {
+	.k-multiselect-wrap {
+		.k-button {
+			margin:0;
+			width: 100%;
+			text-align:left;
+		}
+	}
+
+	&.k-singleselect-haselection {
+		.k-input {
+			height:0 !important;
+			width:0 !important;
+			line-height:0 !important;
+			margin:0 !important;
+			padding:0 !important;
+		}
+	}
+}
+
 /* Date/Time Pickers */
 
 .k-datetimepicker .k-picker-wrap
