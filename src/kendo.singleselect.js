@@ -100,7 +100,7 @@
 				tagTemplate: "",
 				groupTemplate: "#:data#",
 				fixedGroupTemplate: "#:data#",
-				allowCreate: true,
+				allowCreate: false,
 				createCallback: null,
 				createTemplate: null
 			},

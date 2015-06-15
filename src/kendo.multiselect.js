@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2015 Telerik AD
  *
@@ -161,7 +162,7 @@
             tagTemplate: "",
             groupTemplate: "#:data#",
             fixedGroupTemplate: "#:data#",
-            allowCreate: true,
+            allowCreate: false,
             createCallback: null,
             createTemplate: null
         },
