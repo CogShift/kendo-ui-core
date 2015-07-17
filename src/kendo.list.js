@@ -1234,7 +1234,8 @@
            "deactivate",
            "dataBinding",
            "dataBound",
-           "selectedItemChange"
+           "selectedItemChange",
+		   "created"
         ],
 
         setCreateText: function (text) {
@@ -1730,7 +1731,8 @@
 				            that.dataSource.add(data);
 							that._view[index].item = data;
 							that.select(indices);
-						}).always(function() {
+				            that.trigger("created", data);
+			            }).always(function() {
 				            delete that._saving;
 			            });
 

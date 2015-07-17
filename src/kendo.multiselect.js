@@ -271,7 +271,10 @@
 		        selectedItemChange: proxy(that._selectedItemChange, that),
 		        allowCreate: options.allowCreate,
 		        createTemplate: options.createTemplate,
-		        createCallback: $.proxy(that._create, that)
+		        createCallback: $.proxy(that._create, that),
+		        created: function() {
+			        that._change();
+		        }
 	        };
 
 	        if (options.allowCreate && options.saveCallback) {
