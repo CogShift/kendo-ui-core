@@ -2,7 +2,6 @@
     define([ "./kendo.data", "./kendo.popup" ], f);
 })(function(){
 
-/*jshint evil: true*/
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -1712,14 +1711,34 @@
         },
 
         _select: function(indices) {
-            var that = this;
+        	var that = this;
+        	var options = that.options;
             var children = that.element[0].children;
             var data = that._view;
             var dataItem, index;
             var added = [];
             var idx = 0;
 
-            if (indices[indices.length - 1] !== -1) {
+            if (indices.length === 1) {
+	            index = indices[0];
+	            var $child = $(children[index]);
+				// If the "Just Use" item was selected, invoke the "createDetail" event
+	            if ($child.is(".k-item-create") && options.saveCallback && !that._saving) {
+	            	that._saving = true;
+	            	$.when(options.saveCallback(data[index]))
+						.then(function (data) {
+				            that.dataSource.add(data);
+							that._view[index].item = data;
+							that.select(indices);
+						}).always(function() {
+				            delete that._saving;
+			            });
+
+	        		return [];
+		        }
+	        }
+
+	        if (indices[indices.length - 1] !== -1) {
                 that.focus(indices);
             }
 
@@ -1970,7 +1989,12 @@
 		                args = { text: this._createText },
 		                item = options.createCallback(args);
 
-            		dataContext.push({
+					// Ensure the ID of the new item is set to 0 to signify that it is a new entity
+            		if (options.dataValueField && item[options.dataValueField] == undefined) {
+			            item[options.dataValueField] = 0;
+		            }
+
+		            dataContext.push({
             			selected: false,
             			item: item,
             			index: ix

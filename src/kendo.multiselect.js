@@ -147,7 +147,8 @@
             fixedGroupTemplate: "#:data#",
             allowCreate: false,
             createCallback: null,
-            createTemplate: null
+            createTemplate: null,
+			saveCallback: null
         },
 
         events: [
@@ -253,27 +254,31 @@
 
             var listBoundHandler = proxy(that._listBound, that);
 
-            var listOptions = {
-                autoBind: false,
-                selectable: "multiple",
-                dataSource: that.dataSource,
-                click: proxy(that._click, that),
-                change: proxy(that._listChange, that),
-                activate: proxy(that._activateItem, that),
-                deactivate: proxy(that._deactivateItem, that),
-                dataBinding: function() {
-                    that.trigger("dataBinding");
-                    that._angularItems("cleanup");
-                },
-                dataBound: listBoundHandler,
-                listBound: listBoundHandler,
-                selectedItemChange: proxy(that._selectedItemChange, that),
-                allowCreate: options.allowCreate,
-                createTemplate: options.createTemplate,
-                createCallback: $.proxy(that._create, that)
-            };
+	        var listOptions = {
+		        autoBind: false,
+		        selectable: "multiple",
+		        dataSource: that.dataSource,
+		        click: proxy(that._click, that),
+		        change: proxy(that._listChange, that),
+		        activate: proxy(that._activateItem, that),
+		        deactivate: proxy(that._deactivateItem, that),
+		        dataBinding: function() {
+			        that.trigger("dataBinding");
+			        that._angularItems("cleanup");
+		        },
+		        dataBound: listBoundHandler,
+		        listBound: listBoundHandler,
+		        selectedItemChange: proxy(that._selectedItemChange, that),
+		        allowCreate: options.allowCreate,
+		        createTemplate: options.createTemplate,
+		        createCallback: $.proxy(that._create, that)
+	        };
 
-            listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
+	        if (options.allowCreate && options.saveCallback) {
+	        	listOptions.saveCallback = options.saveCallback;
+	        }
+
+	        listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
 
             that._normalizeOptions(listOptions);
 
