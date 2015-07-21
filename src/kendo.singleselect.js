@@ -52,7 +52,8 @@
 				};
 
 				function toggleHasSelection() {
-					that._multiSelect.wrapper.toggleClass("k-singleselect-haselection", that.value() !== null);
+					var value = that.value();
+					that._multiSelect.wrapper.toggleClass("k-singleselect-haselection", value !== "" && value !== null && value !== undefined);
 				}
 
 				toggleHasSelection();
@@ -92,7 +93,7 @@
 			select: function (selected) {
 				var that = this;
 
-				if (selected !== undefined && !(selected instanceof Array)) {
+				if (selected !== undefined && selected !== null && !(selected instanceof Array)) {
 					selected = [selected];
 				}
 
@@ -106,7 +107,7 @@
 			value: function (value) {
 				var that = this;
 
-				if (value !== undefined && !(value instanceof Array)) {
+				if (value !== undefined && value !== null && !(value instanceof Array)) {
 					value = [value];
 				}
 
