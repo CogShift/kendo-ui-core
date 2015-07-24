@@ -51,16 +51,36 @@
 					oldBind.apply(that, arguments);
 				};
 
+				var hasSelection;
+
 				function toggleHasSelection() {
 					var value = that.value();
-					that._multiSelect.wrapper.toggleClass("k-singleselect-haselection", value !== "" && value !== null && value !== undefined);
+					hasSelection = value !== "" && value !== null && value !== undefined;
+					that._multiSelect.wrapper.toggleClass("k-singleselect-haselection", hasSelection);
 				}
 
 				toggleHasSelection();
 
-				that.bind("change", function() {
+				that._multiSelect.listView.bind("change", function() {
 					toggleHasSelection();
 				});
+
+				that._multiSelect.input.off("keydown.kendoMultiSelect");
+
+				var keydown = that._multiSelect._keydown;
+
+				// Prevent the multiselect text input from accepting keystrokes when a values has been selected,
+				// except for backspace, which should clear the selected value.
+				that._multiSelect._keydown = function (e) {
+					if (hasSelection && e.keyCode !== kendo.keys.BACKSPACE) {
+						e.preventDefault();
+						return;
+					}
+
+					keydown.apply(that._multiSelect, arguments);
+				};
+
+				that._multiSelect.input.on("keydown.kendoMultiSelect", $.proxy(that._multiSelect._keydown, that));
 
 				that._multiSelect.wrapper.addClass("k-singleselect");
 			},
