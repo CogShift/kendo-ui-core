@@ -1121,6 +1121,9 @@
                         filterValue = dataItem ? parent._value(dataItem) : null,
                         expressions, filters;
 
+                    // Clear the currently selected data Items
+	                that.select(-1);
+
                     if (filterValue || filterValue === 0) {
                         expressions = that.dataSource.filter() || {};
                         removeFiltersForField(expressions, valueField);
@@ -1507,7 +1510,7 @@
 
             if (that.isBound()) {
 
-            	// Ensure that all _dataItems exist as items in the _view.  
+            	// Ensure that all _dataItems exist as items in the _view.
             	var ix = that._view.length;
 	            var html = "";
 	            for (var i = 0; i < that._dataItems.length; i++) {
@@ -1802,7 +1805,7 @@
         },
 
         _templates: function() {
-        	var that = this, 
+        	var that = this,
 				template,
 				options = this.options,
 				templates = {
