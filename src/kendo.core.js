@@ -1591,7 +1591,7 @@ function pad(number, digits, end) {
                 value = value.replace(parts[0], "").replace(parts[1], "");
                 negative = true;
             }
-        } else if (value.indexOf(percentSymbol) > -1) {
+        } else if (value.indexOf(percentSymbol) > -1 || (format && format.toLowerCase().indexOf("p") > -1)) {
             isPercent = true;
             number = percent;
             symbol = percentSymbol;

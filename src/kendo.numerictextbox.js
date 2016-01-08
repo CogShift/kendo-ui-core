@@ -2,14 +2,6 @@
     define([ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
 
-var __meta__ = {
-    id: "numerictextbox",
-    name: "NumericTextBox",
-    category: "web",
-    description: "The NumericTextBox widget can format and display numeric, percentage or currency textbox.",
-    depends: [ "core", "userevents" ]
-};
-
 (function($, undefined) {
     var kendo = window.kendo,
         caret = kendo.caret,
@@ -558,7 +550,7 @@ var __meta__ = {
         _step: function(step) {
             var that = this,
                 element = that.element,
-                value = that._parse(element.val()) || 0;
+                value = parseFloat(element.val()) || 0;
 
             if (activeElement() != element[0]) {
                 that._focusin();
@@ -566,7 +558,7 @@ var __meta__ = {
 
             value += that.options.step * step;
 
-            that._update(that._adjust(value));
+	        that._update(value.toString());
             that._typing = false;
 
             that.trigger(SPIN);
@@ -600,6 +592,11 @@ var __meta__ = {
                 decimals = numberFormat.decimals;
             }
 
+			// Ensure the value falls within the min / max constraints
+            if (value !== "" && value !== null) {
+	            value = that._adjust(parseFloat(value)).toString();
+            }
+
             value = that._parse(value, culture);
 
             isNotNull = value !== NULL;
@@ -608,15 +605,15 @@ var __meta__ = {
                 value = parseFloat(round(value, decimals));
             }
 
-            that._value = value = that._adjust(value);
+            that._value = value;
             that._placeholder(kendo.toString(value, format, culture));
 
             if (isNotNull) {
-                value = value.toString();
-                if (value.indexOf("e") !== -1) {
-                    value = round(+value, decimals);
-                }
-                value = value.replace(POINT, numberFormat[POINT]);
+            	value = kendo.toString(value, format, culture);
+
+            	if (value.indexOf(numberFormat.symbol) >= -1) {
+            		value = value.replace(numberFormat.symbol, "");
+            	}
             } else {
                 value = "";
             }
