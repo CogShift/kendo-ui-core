@@ -413,6 +413,7 @@
                 wrapper
                     .removeClass(STATEDISABLED)
                     .on(HOVEREVENTS, that._toggleHover)
+                    .find(".k-multiselect-wrap")
                     .on("mousedown" + ns + " touchend" + ns, proxy(that._wrapperMousedown, that));
 
                 that.input.on(KEYDOWN, proxy(that._keydown, that))
