@@ -1121,9 +1121,6 @@
                         filterValue = dataItem ? parent._value(dataItem) : null,
                         expressions, filters;
 
-                    // Clear the currently selected data Items
-	                that.select(-1);
-
                     if (filterValue || filterValue === 0) {
                         expressions = that.dataSource.filter() || {};
                         removeFiltersForField(expressions, valueField);
@@ -1154,6 +1151,14 @@
 
                 parent.first("cascade", function(e) {
                     that._userTriggered = e.userTriggered;
+
+                    if (e.userTriggered) {
+                        // Clear the currently selected data Item to prevent
+                        // the previously selected item from being added to the datasource view
+                        // after cascade
+                		that.select(-1);
+                	}
+
                     select();
                 });
 
