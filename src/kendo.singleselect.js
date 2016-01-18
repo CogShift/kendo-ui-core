@@ -37,7 +37,7 @@
 					}
 				}
 
-				// Intercept the trigger and bind functions of the multiselect widget, ensuring that the instance of 
+				// Intercept the trigger and bind functions of the multiselect widget, ensuring that the instance of
 				// "this" is the singleSelect widget and not the multiselect widget.
 				var oldTrigger = that._multiSelect.trigger;
 
@@ -62,6 +62,10 @@
 				toggleHasSelection();
 
 				that._multiSelect.listView.bind("change", function() {
+					toggleHasSelection();
+				});
+
+                that.bind("change", function() {
 					toggleHasSelection();
 				});
 
