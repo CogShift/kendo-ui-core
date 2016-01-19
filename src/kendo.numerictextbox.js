@@ -245,10 +245,10 @@
         },
 
         _adjust: function(value) {
-            var that = this,
-            options = that.options,
-            min = options.min,
-            max = options.max;
+	        var that = this,
+		        options = that.options,
+		        min = options.min,
+		        max = options.max;
 
             if (value === NULL) {
                 return value;
@@ -548,17 +548,22 @@
         },
 
         _step: function(step) {
-            var that = this,
-                element = that.element,
-                value = parseFloat(element.val()) || 0;
+	        var that = this,
+		        element = that.element,
+				ispercent = that.options.format.indexOf("p") > -1,
+		        value = that.value() || 0;
 
             if (activeElement() != element[0]) {
                 that._focusin();
             }
 
-            value += that.options.step * step;
+            if (ispercent) {
+            	value += (that.options.step * step) / 100;
+            } else {
+            	value += that.options.step * step;
+            }
 
-	        that._update(value.toString());
+	        that._update(value);
             that._typing = false;
 
             that.trigger(SPIN);
@@ -592,12 +597,12 @@
                 decimals = numberFormat.decimals;
             }
 
-			// Ensure the value falls within the min / max constraints
-            if (value !== "" && value !== null) {
-	            value = that._adjust(parseFloat(value)).toString();
-            }
-
             value = that._parse(value, culture);
+
+        	// Ensure the value falls within the min / max constraints
+            if (value !== "" && value !== null) {
+	            value = that._adjust(parseFloat(value));
+            }
 
             isNotNull = value !== NULL;
 
@@ -611,7 +616,7 @@
             if (isNotNull) {
             	value = kendo.toString(value, format, culture);
 
-            	if (value.indexOf(numberFormat.symbol) >= -1) {
+            	if (numberFormat.symbol && value.indexOf(numberFormat.symbol) >= -1) {
             		value = value.replace(numberFormat.symbol, "");
             	}
             } else {
